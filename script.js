@@ -26,16 +26,15 @@ Toolbox.addNavButtonControl('#btn_form_get_posts',
         Toolbox.addItemToList('ul',
         `User ID: ${user.id} , user Name: ${user.name}, 
         user Nickname: ${user.username}`));
+
+    const responsePost = await fetch(`${baseUrl}/posts`);
+    console.log(responsePost);
+    const jsonPost = await responsePost.json();
+
+    await (jsonPost.forEach(item => controller.createPosts(item)));
 })();
 
-(async () => {
-    const response = await fetch(`${baseUrl}/posts`);
-    console.log(response);
-    const json = await response.json();
 
-    await (json.forEach(item => controller.createPosts(item)));
-    await console.log(users.getAllPosts());
-})();
 
 //************************Form User Handler*************************
 
@@ -50,7 +49,8 @@ Toolbox.formHandler('#form_user', user => {
 
 //************************Form Add Post*************************
 Toolbox.formHandler('#form_add_post', item => {
-    let id = users.getAllPosts().length + 1;
+    const posts = users.getAllPosts();
+    const id = posts[posts.length - 1].id + 1; //generating unique id to add new post to the array
     let post = {
         title: item.title,
         body: item.body,
@@ -72,14 +72,14 @@ Toolbox.formHandler('#form_add_post', item => {
 
 });
 
-formGetPosts.addEventListener('submit', e => {
-    e.preventDefault();
+//************************Form Get Posts*************************
+
+Toolbox.formHandler('#form_get_posts', () => {
     const id = document.getElementById('id_posts').value;
     content.innerHTML = '';
     controller.processPosts(post => {
-        if (id == post.userId)
+        if (+id === +post.userId)
             Toolbox.addItemToList('ul', `User ID: ${post.userId}, 
             Title: ${post.title}, Body: ${post.body}`);
     });
-});
-
+})
